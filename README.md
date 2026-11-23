@@ -6,7 +6,9 @@ On the first launch, choose `horizon-26.3-resources.tar` prepared from your own 
 
 ## Building the download
 
-The client uses [Horizon Web at `f02739c`](https://github.com/nobuildersnotools/horizon-web/tree/f02739c6996fe76321253543b782c1c53c53b93e), where the single-threaded build supports single-player. See the upstream [build instructions](https://github.com/nobuildersnotools/horizon-web/blob/f02739c6996fe76321253543b782c1c53c53b93e/web/README.md). With stable Rust, a WASM-capable Clang and `wasm-bindgen-cli` 0.2.129 installed, run `THREADS=0 BUNDLE=0 DIST=web/dist-st PROFILE=fast web/build.sh` in that checkout. Then run this repository's packager.
+The client uses [Horizon Web at `f02739c`](https://github.com/nobuildersnotools/horizon-web/tree/f02739c6996fe76321253543b782c1c53c53b93e), with [a patch](streaming.patch) that lets the browser schedule terrain lighting and meshing and uses browser-compatible clocks for world entry and chat. See the upstream [build instructions](https://github.com/nobuildersnotools/horizon-web/blob/f02739c6996fe76321253543b782c1c53c53b93e/web/README.md).
+
+In the upstream checkout, run `git apply ../dream-horizon/streaming.patch`. With stable Rust, a WASM-capable Clang and `wasm-bindgen-cli` 0.2.129 installed, run `THREADS=0 BUNDLE=0 DIST=web/dist-st PROFILE=fast web/build.sh`. Then run this repository's packager.
 
 ```sh
 python package.py --source ../horizon-web --pkg ../horizon-web/web/dist-st/pkg

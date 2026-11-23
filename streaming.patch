@@ -1,0 +1,49 @@
+diff --git a/crates/horizon-client-render/src/streaming.rs b/crates/horizon-client-render/src/streaming.rs
+index 07ab38077..8584ec272 100644
+--- a/crates/horizon-client-render/src/streaming.rs
++++ b/crates/horizon-client-render/src/streaming.rs
+@@ -1456,7 +1456,7 @@ impl Streaming {
+         for key in gone {
+             world.dirty_light.remove(&key);
+         }
+-        let room = (self.threads.len() * 4).saturating_sub(self.lighting.len());
++        let room = (workers * 4).saturating_sub(self.lighting.len());
+         nearest_first(&mut light, room);
+         for (_, x, z) in light {
+             let Some(region) = self.light_region(world, x, z) else {
+@@ -1542,7 +1542,7 @@ impl Streaming {
+         // jobs went stale long before a worker reached them (#3629). What
+         // stays dirty is asked for again, from the current centre, as
+         // capacity frees; `requeue` then has a small queue to keep close.
+-        let room = (self.threads.len() * 32).saturating_sub(self.meshing.len());
++        let room = (workers * 32).saturating_sub(self.meshing.len());
+         nearest_first(&mut candidates, room);
+         for (_, x, z, sections) in candidates {
+             let Some(region) = Self::region(world, x, z) else {
+diff --git a/crates/horizon-client/src/game/remote.rs b/crates/horizon-client/src/game/remote.rs
+index 85206029f..a50934ba2 100644
+--- a/crates/horizon-client/src/game/remote.rs
++++ b/crates/horizon-client/src/game/remote.rs
+@@ -1093,8 +1093,8 @@ impl Game<'_> {
+         }
+         // PlayerChatMessage.hasExpiredClient: MESSAGE_EXPIRES_AFTER_CLIENT is
+         // the server's five minutes and two more.
+-        let now = std::time::SystemTime::now()
+-            .duration_since(std::time::UNIX_EPOCH)
++        let now = horizon_os::time::SystemTime::now()
++            .duration_since(horizon_os::time::UNIX_EPOCH)
+             .map_or(0, |d| d.as_millis() as i64);
+         let expired = now
+             > timestamp.saturating_add(
+@@ -8660,9 +8660,9 @@ fn snapshot_value(s: &play::AttributeSnapshot) -> f64 {
+ 
+ /// `Util.getMillis` for the level load tracker's timeouts.
+ fn client_millis() -> u64 {
+-    static ORIGIN: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
++    static ORIGIN: std::sync::OnceLock<horizon_os::time::Instant> = std::sync::OnceLock::new();
+     ORIGIN
+-        .get_or_init(std::time::Instant::now)
++        .get_or_init(horizon_os::time::Instant::now)
+         .elapsed()
+         .as_millis() as u64
+ }
